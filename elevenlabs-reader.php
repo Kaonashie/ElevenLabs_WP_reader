@@ -27,8 +27,8 @@ add_action('admin_menu', 'elvc_settings_menu');
 
 function elvc_settings_page() {
     ?>
-    <div class="wrap">
-        <h1>ElevenLabs Voice Clone Settings</h1>
+    <div class="elvc-settings-card">
+        <h1>ElevenLabs Post Reader Settings</h1>
         <form method="post" action="options.php">
             <?php
             settings_fields('elvc-settings-group');
@@ -168,7 +168,7 @@ add_filter('the_content', 'elvc_display_audio_player');
 
 // Enqueue custom CSS for the plugin
 function elvc_enqueue_styles() {
-    wp_enqueue_style('elvc-custom-style', plugins_url('style.css', __FILE__));
+    wp_enqueue_style('elvc-custom-style', plugins_url('/css/style.css', __FILE__));
 }
 add_action('wp_enqueue_scripts', 'elvc_enqueue_styles');
 
@@ -178,6 +178,6 @@ function elvc_enqueue_admin_styles($hook) {
         return;
     }
 
-    wp_enqueue_style('elvc-admin-styles', plugin_dir_url(__FILE__) . '/style.css');
+    wp_enqueue_style('elvc-admin-styles', plugin_dir_url(__FILE__) . '/css/admin.css');
 }
 add_action('admin_enqueue_scripts', 'elvc_enqueue_admin_styles');
