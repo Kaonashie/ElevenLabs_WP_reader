@@ -69,6 +69,20 @@ function elvc_generate_audio($post_id) {
     $post = get_post($post_id);
     $content = wp_strip_all_tags($post->post_content);
 
+    // Get the upload directory
+    $upload_dir = wp_upload_dir();
+    $post_audio_pattern = 'elvc_audio_' . $post_id . '_*.mp3'; // Pattern for audio files
+
+    // Delete old audio files
+    $old_files = glob($upload_dir['path'] . '/' . $post_audio_pattern);
+    if ($old_files) {
+        foreach ($old_files as $old_file) {
+            if (is_file($old_file)) {
+                unlink($old_file); // Delete the file
+            }
+        }
+    }
+
     // Prepare cURL request
     $url = 'https://api.elevenlabs.io/v1/text-to-speech/' . $voice_id;
     $headers = array(
@@ -95,7 +109,6 @@ function elvc_generate_audio($post_id) {
         CURLOPT_HTTPHEADER => $headers,
     ));
 
-    // Execute the request
     $response = curl_exec($curl);
     $err = curl_error($curl);
 
@@ -106,28 +119,21 @@ function elvc_generate_audio($post_id) {
         return;
     }
 
-    // Use WordPress's file handling API to save the audio file
-    $upload_dir = wp_upload_dir();
-    $filename = 'elvc_audio_' . $post_id . '.mp3';
+    // Create a unique filename for the new audio file
+    $filename = 'elvc_audio_' . $post_id . '_' . time() . '.mp3';
     $file_path = $upload_dir['path'] . '/' . $filename;
 
-    // Delete the old audio file if it exists
-    if (file_exists($file_path)) {
-        unlink($file_path); // Delete the old file
-    }
-
-    // Open file for writing
+    // Save the new audio file
     $file_handle = fopen($file_path, 'wb');
     if ($file_handle === false) {
         error_log('Failed to open file for writing: ' . $file_path);
         return;
     }
 
-    // Write the response content to the file
     fwrite($file_handle, $response);
     fclose($file_handle);
 
-    // Ensure file is saved properly and update the post meta with file URL
+    // Ensure the file is saved correctly and update the post meta
     if (filesize($file_path) > 0) {
         $file_url = $upload_dir['url'] . '/' . $filename;
         update_post_meta($post_id, '_elvc_audio_url', $file_url);
@@ -142,17 +148,13 @@ function elvc_display_audio_player($content) {
     if (is_single()) {
         $audio_url = get_post_meta(get_the_ID(), '_elvc_audio_url', true);
         if ($audio_url) {
-            // Get the file modification time to append as a query string for cache busting
-            $upload_dir = wp_upload_dir();
-            $filename = 'elvc_audio_' . get_the_ID() . '.mp3';
-            $file_path = $upload_dir['path'] . '/' . $filename;
-
-            if (file_exists($file_path)) {
-                $file_mtime = filemtime($file_path); // Get the last modification time
-                $audio_url = add_query_arg('ver', $file_mtime, $audio_url); // Add cache-busting query string
-            }
-
-            $audio_player = '<audio controls><source src="' . esc_url($audio_url) . '" type="audio/mpeg">Your browser does not support the audio element.</audio>';
+            $audio_player = '
+            <div class="elvc-audio-player">
+                <audio controls>
+                    <source src="' . esc_url($audio_url) . '" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>';
             $content = $audio_player . $content;
         } else {
             error_log('No audio URL found for post ID: ' . get_the_ID());
@@ -161,3 +163,9 @@ function elvc_display_audio_player($content) {
     return $content;
 }
 add_filter('the_content', 'elvc_display_audio_player');
+
+// Enqueue custom CSS for the plugin
+function elvc_enqueue_styles() {
+    wp_enqueue_style('elvc-custom-style', plugins_url('style.css', __FILE__));
+}
+add_action('wp_enqueue_scripts', 'elvc_enqueue_styles');
