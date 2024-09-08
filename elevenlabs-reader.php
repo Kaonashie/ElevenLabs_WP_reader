@@ -35,11 +35,11 @@ function elvc_settings_page() {
             do_settings_sections('elvc-settings-group');
             ?>
             <table class="form-table">
-                <tr valign="top">
+                <tr style="vertical-align: top">
                     <th scope="row">ElevenLabs API Key</th>
                     <td><input type="text" name="elvc_api_key" value="<?php echo esc_attr(get_option('elvc_api_key')); ?>" /></td>
                 </tr>
-                <tr valign="top">
+                <tr style="vertical-align: top">
                     <th scope="row">Voice ID</th>
                     <td><input type="text" name="elvc_voice_id" value="<?php echo esc_attr(get_option('elvc_voice_id')); ?>" /></td>
                 </tr>
