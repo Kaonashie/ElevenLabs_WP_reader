@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: ElevenLabs Audio Reader
+Plugin Name: ElevenLabs Post Reader
 Description: Convert blog post content into audio read by cloned voice on ElevenLabs
 Version: 1.0
 Author: https://github.com/Kaonashie
@@ -13,12 +13,14 @@ if (!defined('ABSPATH')) {
 
 // Admin Settings Page to Add API Key and Voice ID
 function elvc_settings_menu() {
-    add_options_page(
-        'ElevenLabs Voice Clone',
-        'ElevenLabs Voice Clone',
-        'manage_options',
-        'elvc-settings',
-        'elvc_settings_page'
+    add_menu_page(
+        'ElenvenLabs Post Reader',      // Page title
+        'EL Post Reader',        		// Menu title
+        'manage_options',              	// Capability required to view
+        'elvc-settings',               	// Menu slug
+        'elvc_settings_page',          	// Function that displays the settings page
+        'dashicons-admin-generic',     	// Icon for the menu
+        6                              	// Position in the admin menu
     );
 }
 add_action('admin_menu', 'elvc_settings_menu');
