@@ -171,3 +171,13 @@ function elvc_enqueue_styles() {
     wp_enqueue_style('elvc-custom-style', plugins_url('style.css', __FILE__));
 }
 add_action('wp_enqueue_scripts', 'elvc_enqueue_styles');
+
+function elvc_enqueue_admin_styles($hook) {
+    // Only enqueue on the plugin settings page
+    if ($hook != 'toplevel_page_elvc-settings') {
+        return;
+    }
+
+    wp_enqueue_style('elvc-admin-styles', plugin_dir_url(__FILE__) . '/style.css');
+}
+add_action('admin_enqueue_scripts', 'elvc_enqueue_admin_styles');

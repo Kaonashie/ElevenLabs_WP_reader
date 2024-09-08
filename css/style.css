@@ -1,0 +1,13 @@
+/* ElevenLabs Post Reader Custom Styles */
+
+.elvc-audio-player {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.elvc-audio-player audio {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
