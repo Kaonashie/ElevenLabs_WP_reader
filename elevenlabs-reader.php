@@ -12,20 +12,24 @@ if (!defined('ABSPATH')) {
 }
 
 // Admin Settings Page to Add API Key and Voice ID
-function elvc_settings_menu() {
+function elvc_settings_menu(): void
+{
     add_menu_page(
         'ElenvenLabs Post Reader',      // Page title
-        'EL Post Reader',        		// Menu title
-        'manage_options',              	// Capability required to view
-        'elvc-settings',               	// Menu slug
-        'elvc_settings_page',          	// Function that displays the settings page
-        'dashicons-admin-generic',     	// Icon for the menu
-        6                              	// Position in the admin menu
+        'EL Post Reader',                // Menu title
+        'manage_options',                // Capability required to view
+        'elvc-settings',                // Menu slug
+        'elvc_settings_page',            // Function that displays the settings page
+        'dashicons-admin-generic',        // Icon for the menu
+        6                                // Position in the admin menu
     );
 }
+
 add_action('admin_menu', 'elvc_settings_menu');
 
-function elvc_settings_page() {
+// Settings Page HTML
+function elvc_settings_page(): void
+{
     ?>
     <div class="elvc-settings-card">
         <h1>ElevenLabs Post Reader Settings</h1>
@@ -37,11 +41,17 @@ function elvc_settings_page() {
             <table class="form-table">
                 <tr style="vertical-align: top">
                     <th scope="row">ElevenLabs API Key</th>
-                    <td><input type="text" name="elvc_api_key" value="<?php echo esc_attr(get_option('elvc_api_key')); ?>" /></td>
+                    <td><label>
+                            <input type="text" name="elvc_api_key"
+                                   value="<?php echo esc_attr(get_option('elvc_api_key')); ?>"/>
+                        </label></td>
                 </tr>
                 <tr style="vertical-align: top">
                     <th scope="row">Voice ID</th>
-                    <td><input type="text" name="elvc_voice_id" value="<?php echo esc_attr(get_option('elvc_voice_id')); ?>" /></td>
+                    <td><label>
+                            <input type="text" name="elvc_voice_id"
+                                   value="<?php echo esc_attr(get_option('elvc_voice_id')); ?>"/>
+                        </label></td>
                 </tr>
             </table>
             <?php submit_button(); ?>
@@ -50,14 +60,18 @@ function elvc_settings_page() {
     <?php
 }
 
-function elvc_register_settings() {
+// Register Settings
+function elvc_register_settings(): void
+{
     register_setting('elvc-settings-group', 'elvc_api_key');
     register_setting('elvc-settings-group', 'elvc_voice_id');
 }
+
 add_action('admin_init', 'elvc_register_settings');
 
 // Generate Audio for Blog Posts
-function elvc_generate_audio($post_id) {
+function elvc_generate_audio($post_id): void
+{
     if (wp_is_post_revision($post_id)) {
         return;
     }
@@ -143,10 +157,12 @@ function elvc_generate_audio($post_id) {
         error_log('Audio file saved but size is 0 bytes: ' . $file_path);
     }
 }
+
 add_action('save_post', 'elvc_generate_audio');
 
 // Display Audio Player in Blog Posts
-function elvc_display_audio_player($content) {
+function elvc_display_audio_player($content)
+{
     if (is_single()) {
         $audio_url = get_post_meta(get_the_ID(), '_elvc_audio_url', true);
         if ($audio_url) {
@@ -164,15 +180,20 @@ function elvc_display_audio_player($content) {
     }
     return $content;
 }
+
 add_filter('the_content', 'elvc_display_audio_player');
 
-// Enqueue custom CSS for the plugin
-function elvc_enqueue_styles() {
+// Enqueue custom CSS for the Audio Player
+function elvc_enqueue_styles(): void
+{
     wp_enqueue_style('elvc-custom-style', plugins_url('/css/style.css', __FILE__));
 }
+
 add_action('wp_enqueue_scripts', 'elvc_enqueue_styles');
 
-function elvc_enqueue_admin_styles($hook) {
+// Enqueue custom CSS for the Admin Settings Page
+function elvc_enqueue_admin_styles($hook): void
+{
     // Only enqueue on the plugin settings page
     if ($hook != 'toplevel_page_elvc-settings') {
         return;
@@ -180,4 +201,5 @@ function elvc_enqueue_admin_styles($hook) {
 
     wp_enqueue_style('elvc-admin-styles', plugin_dir_url(__FILE__) . '/css/admin.css');
 }
+
 add_action('admin_enqueue_scripts', 'elvc_enqueue_admin_styles');
